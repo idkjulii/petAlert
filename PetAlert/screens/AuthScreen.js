@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   View,
   Text,
@@ -9,7 +9,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Image
+  Image,
+  Linking
 } from 'react-native'
 import { supabase } from '../services/supabase'
 
@@ -22,6 +23,45 @@ const AuthScreen = ({ onAuthSuccess }) => {
     fullName: '',
     phone: ''
   })
+
+  // Manejar URLs de verificación de email
+  useEffect(() => {
+    const handleDeepLink = (url) => {
+      if (url.includes('petalert://') && url.includes('access_token')) {
+        // Extraer el token de la URL
+        const urlParts = url.split('#')[1]
+        const params = new URLSearchParams(urlParts)
+        const accessToken = params.get('access_token')
+        const refreshToken = params.get('refresh_token')
+        
+        if (accessToken) {
+          // Establecer la sesión con los tokens
+          supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          }).then(({ data, error }) => {
+            if (!error && data.user) {
+              Alert.alert(
+                'Email verificado',
+                'Tu cuenta ha sido verificada exitosamente',
+                [{ text: 'OK', onPress: () => onAuthSuccess(data.user) }]
+              )
+            }
+          })
+        }
+      }
+    }
+
+    // Escuchar enlaces profundos
+    const subscription = Linking.addEventListener('url', handleDeepLink)
+    
+    // Verificar si la app se abrió con un enlace
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink(url)
+    })
+
+    return () => subscription?.remove()
+  }, [onAuthSuccess])
 
   const handleSubmit = async () => {
     if (!formData.email || !formData.password) {
@@ -55,7 +95,8 @@ const AuthScreen = ({ onAuthSuccess }) => {
             data: {
               full_name: formData.fullName,
               phone: formData.phone
-            }
+            },
+            emailRedirectTo: 'petalert://auth/callback'
           }
         })
         

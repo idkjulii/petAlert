@@ -16,10 +16,17 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.petalert",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "PetAlert necesita acceso a tu ubicación para mostrarte mascotas perdidas cercanas y ayudarte a reportar la ubicación de tu mascota.",
         "NSCameraUsageDescription": "PetAlert necesita acceso a tu cámara para tomar fotos de las mascotas perdidas o encontradas.",
-        "NSPhotoLibraryUsageDescription": "PetAlert necesita acceso a tu galería para seleccionar fotos de las mascotas."
+        "NSPhotoLibraryUsageDescription": "PetAlert necesita acceso a tu galería para seleccionar fotos de las mascotas.",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLName": "petalert",
+            "CFBundleURLSchemes": ["petalert"]
+          }
+        ]
       }
     },
     "android": {
@@ -35,7 +42,22 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.anonymous.petalert"
+      "package": "com.anonymous.petalert",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "petalert"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
